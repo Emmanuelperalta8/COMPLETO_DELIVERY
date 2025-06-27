@@ -1,82 +1,68 @@
-// prisma/schema.prisma
-
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  // uncomment next line if you use Prisma <5.10
-  // directUrl = env("DATABASE_URL_UNPOOLED")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model Coffee {
-  id          String       @id @default(uuid())
+  id          String      @id @default(uuid())
   name        String
   description String
-  price       Decimal      @db.Decimal(10, 2)
+  price       Decimal     @db.Decimal(10, 2)
   imageUrl    String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  // Relacionamentos
-  tags        CoffeeTag[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   cartItems   CartItem[]
+  tags        CoffeeTag[]
 }
 
 model Tag {
-  id        String       @id @default(uuid())
-  name      String       @unique
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-
-  // Relacionamentos
+  id        String      @id @default(uuid())
+  name      String      @unique
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   coffees   CoffeeTag[]
 }
 
 model CoffeeTag {
-  coffeeId  String
-  tagId     String
-
-  // Relacionamentos
-  coffee    Coffee @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
-  tag       Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  coffeeId String
+  tagId    String
+  coffee   Coffee @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([coffeeId, tagId])
 }
 
 model Cart {
-  id                  String     @id @default(uuid())
-  userId              String?
-  status              String
-  statusPayment       String
-  dataTimeCompleted   DateTime?
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
-
-  items               CartItem[]
-  orders              Order[] @relation("CartOrders")
+  id                String     @id @default(uuid())
+  userId            String?
+  status            String
+  statusPayment     String
+  dataTimeCompleted DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  items             CartItem[]
+  orders            Order[]    @relation("CartOrders")
 }
 
 model CartItem {
-  id         String   @id @default(uuid())
-  quantity   Int
-  unitPrice  Decimal  @db.Decimal(10, 2)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  coffeeId   String
-  cartId     String
-
-  coffee     Coffee @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
-  cart       Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  quantity  Int
+  unitPrice Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  coffeeId  String
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  coffee    Coffee   @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
 }
 
 model Order {
   id              String   @id @default(uuid())
   cartId          String
-  cart            Cart     @relation("CartOrders", fields: [cartId], references: [id])
   totalItems      Int
   shippingFee     Float
   totalAmount     Float
@@ -85,4 +71,5 @@ model Order {
   status          String   @default("pending")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  cart            Cart     @relation("CartOrders", fields: [cartId], references: [id])
 }

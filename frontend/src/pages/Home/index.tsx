@@ -1,53 +1,51 @@
-import { Coffee, Package, ShoppingCart, Timer } from '@phosphor-icons/react'
-import { useTheme } from 'styled-components'
-
-
-import { CoffeeCard } from '../../components/CoffeeCard'
-import { CoffeeList, Heading, Hero, HeroContent, Info, Navbar } from './styles'
+import { Coffee, Package, ShoppingCart, Timer } from '@phosphor-icons/react';
+import { useTheme } from 'styled-components';
+import { CoffeeCard } from '../../components/CoffeeCard';
+import { CoffeeList, Heading, Hero, HeroContent, Info, Navbar } from './styles';
 import { useEffect, useState } from 'react';
 import { Radio } from '../../components/Form/Radio';
-import { api } from '../../serves/api';
-import axios from "axios";
-
-
-
-
-
+import { api } from '../../services/api'; // ✅ Usa api.ts para requisições
 
 interface Coffee {
-  id: string
-  title: string
-  description: string
-  tags: string[]
-  price: number
-  image: string
-  quantity: number
-  favorite: boolean
+  id: string;
+  name: string; // Ajustado para refletir o banco de dados
+  description: string;
+  tags: string[];
+  price: number;
+  imageUrl: string; // Ajustado para refletir o banco de dados
+  quantity: number;
+  favorite: boolean;
 }
 
 export function Home() {
-  const theme = useTheme()
-  const [coffees, setCoffees] = useState<Coffee[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const theme = useTheme();
+  const [coffees, setCoffees] = useState<Coffee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
-  useEffect(() => {
-    axios
-      .get('http://localhost:3000/coffees')
-      .then((response) => {
-        setCoffees(response.data)
-      })
-      .catch((error) => {
-        console.error('Erro na lista de cafés!', error)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [])
-
-
-
-
+useEffect(() => {
+  api.get('/coffees') // Faz a requisição para o endpoint do back-end
+    .then((response) => {
+      // Ajusta os dados para incluir `quantity` e `favorite` com valores padrão
+      const formattedCoffees = response.data.map((coffee: any) => ({
+        id: coffee.id,
+        name: coffee.name, // Mapeia 'name' do banco de dados
+        description: coffee.description,
+        tags: coffee.tags.map((tag: any) => tag.name),
+        price: coffee.price,
+        imageUrl: coffee.imageUrl, // Mapeia 'imageUrl' do banco de dados
+        quantity: 0, // Valor inicial para quantidade
+        favorite: false, // Valor inicial para favorito
+      }));
+      setCoffees(formattedCoffees);
+    })
+    .catch((error) => {
+      console.error('Erro ao buscar cafés:', error);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+}, []);
 
   function incrementQuantity(id: string) {
     setCoffees((prevState) =>
@@ -56,7 +54,7 @@ export function Home() {
           ? { ...coffee, quantity: coffee.quantity + 1 }
           : coffee,
       ),
-    )
+    );
   }
 
   function decrementQuantity(id: string) {
@@ -66,7 +64,7 @@ export function Home() {
           ? { ...coffee, quantity: coffee.quantity - 1 }
           : coffee,
       ),
-    )
+    );
   }
 
   function handleFavoriteCoffee(id: string) {
@@ -76,18 +74,17 @@ export function Home() {
           ? { ...coffee, favorite: !coffee.favorite }
           : coffee,
       ),
-    )
+    );
   }
 
   const filteredCoffees = selectedTag
     ? coffees.filter((coffee) => coffee.tags.includes(selectedTag))
-    : coffees
+    : coffees;
 
- 
   function handleTagSelection(tag: string) {
     setSelectedTag((prevSelectedTag) =>
       prevSelectedTag === tag ? null : tag,
-    )
+    );
   }
 
   return (
@@ -191,5 +188,5 @@ export function Home() {
         </div>
       </CoffeeList>
     </div>
-  )
+  );
 }
