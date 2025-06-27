@@ -1,16 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// prisma/schema.prisma
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
 
 generator client {
   provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Coffee {
@@ -41,13 +39,12 @@ model CoffeeTag {
   coffeeId  String
   tagId     String
 
-  // Relacionamentos aqui
-
+  // Relacionamentos
   coffee    Coffee @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
   tag       Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
   @@id([coffeeId, tagId])
 }
-
 
 model Cart {
   id                  String     @id @default(uuid())
@@ -61,6 +58,7 @@ model Cart {
   items               CartItem[]
   orders              Order[] @relation("CartOrders")
 }
+
 model CartItem {
   id         String   @id @default(uuid())
   quantity   Int
@@ -73,10 +71,8 @@ model CartItem {
 
   coffee     Coffee @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
   cart       Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
-
-
-
 }
+
 model Order {
   id              String   @id @default(uuid())
   cartId          String
@@ -90,5 +86,3 @@ model Order {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
-
-
