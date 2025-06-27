@@ -1,9 +1,12 @@
 import { produce } from 'immer'
 import { ActionTypes, Actions } from './actions'
-import { OrderInfo } from '../../pages/Cart'
+import { OrderInfo } from '../../types/order'
 
 export interface Item {
   id: string
+  name: string
+  imageUrl: string
+  price: number
   quantity: number
 }
 
@@ -17,7 +20,7 @@ interface CartState {
   orders: Order[]
 }
 
-export function cartReducer(state: CartState, action: Actions) {
+export function cartReducer(state: CartState, action: Actions): CartState {
   switch (action.type) {
     case ActionTypes.ADD_ITEM:
       return produce(state, (draft) => {
@@ -37,7 +40,9 @@ export function cartReducer(state: CartState, action: Actions) {
         const itemToRemoveId = draft.cart.findIndex(
           (item) => item.id === action.payload.itemId,
         )
-        draft.cart.splice(itemToRemoveId, 1)
+        if (itemToRemoveId > -1) {
+          draft.cart.splice(itemToRemoveId, 1)
+        }
       })
 
     case ActionTypes.INCREMENT_ITEM_QUANTITY:
@@ -46,7 +51,7 @@ export function cartReducer(state: CartState, action: Actions) {
           (item) => item.id === action.payload.itemId,
         )
 
-        if (itemToIncrement?.id) {
+        if (itemToIncrement) {
           itemToIncrement.quantity += 1
         }
       })
@@ -57,7 +62,7 @@ export function cartReducer(state: CartState, action: Actions) {
           (item) => item.id === action.payload.itemId,
         )
 
-        if (itemToDecrement?.id && itemToDecrement.quantity > 1) {
+        if (itemToDecrement && itemToDecrement.quantity > 1) {
           itemToDecrement.quantity -= 1
         }
       })

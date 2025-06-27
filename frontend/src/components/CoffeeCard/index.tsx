@@ -11,15 +11,17 @@ import {
   Tags,
   Title,
 } from './styles';
+import { useContext } from 'react';
+import { CartContext } from '../../contexts/CartProvider';
 
 type CoffeeCardProps = {
   coffee: {
     id: string;
-    name: string; // Ajustado para refletir o banco de dados
+    name: string;
     description: string;
     tags: string[];
     price: number;
-    imageUrl: string; // Ajustado para refletir o banco de dados
+    imageUrl: string;
     quantity: number;
     favorite: boolean;
   };
@@ -35,41 +37,52 @@ export function CoffeeCard({
   handleFavoriteCoffee,
 }: CoffeeCardProps) {
   const theme = useTheme();
+  const { addItem } = useContext(CartContext);
 
   return (
     <Container>
-      {/* Ajustado para usar 'imageUrl' e 'name' */}
       <CoffeeImg src={coffee.imageUrl} alt={coffee.name} />
-
       <Tags>
         {coffee.tags.map((tag) => (
           <span key={tag}>{tag}</span>
         ))}
       </Tags>
-
-      {/* Ajustado para usar 'name' */}
       <Title>{coffee.name}</Title>
-
       <Description>{coffee.description}</Description>
-
       <Control>
         <Price>
           <span>R$</span>
           <span>{coffee.price.toFixed(2)}</span>
         </Price>
-
         <Order $itemAdded={coffee.quantity > 0}>
           <QuantityInput
             quantity={coffee.quantity}
             incrementQuantity={() => incrementQuantity(coffee.id)}
             decrementQuantity={() => decrementQuantity(coffee.id)}
           />
-
-          <button onClick={() => handleFavoriteCoffee(coffee.id)}>
+          <button
+            type="button"
+            onClick={() => handleFavoriteCoffee(coffee.id)}
+            title="Favoritar"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              marginRight: '0.5rem'
+            }}
+          >
             <Heart
               size={22}
               color={coffee.favorite ? 'red' : theme.colors['base-card']}
             />
+          </button>
+          <button
+            type="button"
+            className="add-to-cart-btn"
+            onClick={() => addItem({ ...coffee, quantity: coffee.quantity || 1 })}
+          >
+            Adicionar ao carrinho
           </button>
         </Order>
       </Control>

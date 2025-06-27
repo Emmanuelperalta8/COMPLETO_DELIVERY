@@ -5,20 +5,29 @@ import { useParams } from 'react-router-dom'
 import { useCart } from '../../hooks/useCart'
 import { Container, Heading, Info, InfoContent, Order } from './styles'
 
+const paymentMethod = {
+  credit: 'Cartão de crédito',
+  debit: 'Cartão de débito',
+  cash: 'Dinheiro',
+  pix: 'Pix',
+} as const;
+
+type PaymentMethodKey = keyof typeof paymentMethod;
+
 export function Success() {
   const { orders } = useCart()
   const { orderId } = useParams()
   const orderInfo = orders.find((order) => order.id === Number(orderId))
-  const paymentMethod = {
-    credit: 'Cartão de crédito',
-    debit: 'Cartão de débito',
-    cash: 'Dinheiro',
-  }
   const theme = useTheme()
 
   if (!orderInfo?.id) {
-    return null
+    return <h2>Pedido não encontrado.</h2>
   }
+
+  // Cálculo do subtotal e total
+  const subtotal = orderInfo.items.reduce((acc, item) => acc + (item.price * item.quantity), 0)
+  const shipping = 7.5 // ou o valor real do frete, se houver no orderInfo
+  const total = subtotal + shipping
 
   return (
     <Container>
@@ -39,26 +48,9 @@ export function Success() {
 
               <div>
                 <span>
-                Resumo do Pedido: <br/>
-                -------------------------- <br/>
-                  <strong>
-                  1x Café Expresso       R$ 9,90
-                  </strong>
-
-1x Café Expresso       R$ 9,90
-2x Cappuccino          R$ 21,80
-Frete (2 itens)        R$ 7,50
---------------------------
-Total:                 R$ 39,20
-
-💳 Método de Pagamento: Pix
-                  <strong>
-                    
-                  </strong>
-                </span>
-
-                <span>
-                  
+                  Entrega em <strong>{orderInfo.address}</strong>
+                  <br />
+                  {/* Adicione outros detalhes do endereço se houver */}
                 </span>
               </div>
             </div>
@@ -72,7 +64,6 @@ Total:                 R$ 39,20
 
               <div>
                 <span>Previsão de entrega</span>
-
                 <strong>20 min - 30 min</strong>
               </div>
             </div>
@@ -86,13 +77,29 @@ Total:                 R$ 39,20
 
               <div>
                 <span>Pagamento na entrega</span>
-
-                <strong>{paymentMethod[orderInfo.paymentMethod]}</strong>
-                <strong>{paymentMethod[orderInfo.paymentMethod]}</strong>
+                <strong>
+                  {paymentMethod[orderInfo.paymentMethod as PaymentMethodKey]}
+                </strong>
               </div>
             </div>
           </InfoContent>
         </Info>
+
+        {/* Resumo do Pedido */}
+        <div style={{ marginTop: 32 }}>
+          <span>Resumo do Pedido:</span>
+          <ul>
+            {orderInfo.items.map((item) => (
+              <li key={item.id}>
+                {item.quantity}x {item.name} &nbsp; R$ {(item.price * item.quantity).toFixed(2)}
+              </li>
+            ))}
+          </ul>
+          <div>
+            Frete: R$ {shipping.toFixed(2)} <br />
+            <strong>Total: R$ {total.toFixed(2)}</strong>
+          </div>
+        </div>
       </Order>
 
       <img src="/images/delivery.svg" alt="Pedido concluído" />

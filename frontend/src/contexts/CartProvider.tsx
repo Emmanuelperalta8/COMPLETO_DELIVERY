@@ -1,5 +1,4 @@
 import { createContext, ReactNode, useEffect, useReducer } from 'react'
-
 import {
   addItemAction,
   checkoutCartAction,
@@ -51,6 +50,7 @@ export function CartContextProvider({ children }: CartContextProviderProps) {
   const { cart, orders } = cartState
 
   function addItem(item: Item) {
+    // Garante que todos os campos necessários estão presentes ao adicionar
     dispatch(addItemAction(item))
   }
 
@@ -73,7 +73,6 @@ export function CartContextProvider({ children }: CartContextProviderProps) {
   useEffect(() => {
     if (cartState) {
       const stateJSON = JSON.stringify(cartState)
-
       localStorage.setItem('@coffee-delivery:cart-state-1.0.0', stateJSON)
     }
   }, [cartState])

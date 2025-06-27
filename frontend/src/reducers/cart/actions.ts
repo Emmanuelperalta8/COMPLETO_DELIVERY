@@ -1,7 +1,5 @@
-/* eslint-disable no-unused-vars */
-
 import { NavigateFunction } from 'react-router-dom'
-import { OrderInfo } from '../../pages/Cart'
+import { OrderInfo } from '../../types/order'
 import { Item } from './reducer'
 
 export enum ActionTypes {
@@ -42,7 +40,7 @@ export function addItemAction(item: Item) {
     payload: {
       item,
     },
-  } satisfies Actions
+  } as const
 }
 
 export function removeItemAction(itemId: Item['id']) {
@@ -51,7 +49,7 @@ export function removeItemAction(itemId: Item['id']) {
     payload: {
       itemId,
     },
-  } satisfies Actions
+  } as const
 }
 
 export function incrementItemQuantityAction(itemId: Item['id']) {
@@ -60,7 +58,7 @@ export function incrementItemQuantityAction(itemId: Item['id']) {
     payload: {
       itemId,
     },
-  } satisfies Actions
+  } as const
 }
 
 export function decrementItemQuantityAction(itemId: Item['id']) {
@@ -69,7 +67,7 @@ export function decrementItemQuantityAction(itemId: Item['id']) {
     payload: {
       itemId,
     },
-  } satisfies Actions
+  } as const
 }
 
 export function checkoutCartAction(
@@ -82,5 +80,5 @@ export function checkoutCartAction(
       order,
       callback,
     },
-  } satisfies Actions
+  } as const
 }
